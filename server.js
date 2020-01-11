@@ -2,6 +2,7 @@ const http = require("http");
 const port = process.env.PORT || 3000;
 
 const { stat, createReadStream } = require("fs");
+const { pipeline } = require("stream");
 const { promisify } = require("util");
 const sampleVideo = "./main.mp4";
 const fileInfo = promisify(stat);
@@ -38,13 +39,17 @@ http
         "Content-Type": "video/mp4"
       });
 
-      createReadStream(fileName, { start, end }).pipe(res);
+      pipeline(createReadStream(sampleVideo), pipe(res), err => {
+        console.log(err);
+      });
     } else {
       res.writeHead(200, {
         "Content-Length": size,
         "Content-Type": "video/mp4"
       });
-      createReadStream(sampleVideo).pipe(res);
+      pipeline(createReadStream(sampleVideo), pipe(res), err => {
+        console.log(err);
+      });
     }
   })
   .listen(port, () => console.log("Running on 3000 port"));
