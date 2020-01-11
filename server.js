@@ -2,8 +2,8 @@ const http = require("http");
 const port = process.env.PORT || 3000;
 
 const { stat, createReadStream } = require("fs");
-const { pipeline } = require("stream");
 const { promisify } = require("util");
+const { pipeline } = require("stream");
 const sampleVideo = "./main.mp4";
 const fileInfo = promisify(stat);
 
@@ -39,7 +39,9 @@ http
         "Content-Type": "video/mp4"
       });
 
-      pipeline(createReadStream(sampleVideo), pipe(res), err => {
+      let readable = createReadStream(sampleVideo, { start: start, end: end });
+
+      pipeline(readable, res, err => {
         console.log(err);
       });
     } else {
@@ -47,7 +49,9 @@ http
         "Content-Length": size,
         "Content-Type": "video/mp4"
       });
-      pipeline(createReadStream(sampleVideo), pipe(res), err => {
+
+      let readable = createReadStream(sampleVideo);
+      pipeline(readable, res, err => {
         console.log(err);
       });
     }
